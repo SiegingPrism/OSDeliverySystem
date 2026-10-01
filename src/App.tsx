@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthModal } from './components/Auth/AuthModal';
+import { LoginPortalHub, PortalType } from './components/Auth/LoginPortalHub';
 import { CustomerProfileModal } from './components/Customer/CustomerProfileModal';
 import { CustomerTracker } from './components/Customer/CustomerTracker';
 import { NewOrderModal } from './components/Customer/NewOrderModal';
@@ -10,10 +11,16 @@ import { DispatchDashboard } from './components/Restaurant/DispatchDashboard';
 import { RestaurantSettingsModal } from './components/Restaurant/RestaurantSettingsModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DeliveryProvider, useDelivery } from './context/DeliveryContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 const MainContent: React.FC = () => {
   const { activeRole, restaurants, selectedRestaurantId } = useDelivery();
   const { currentUser } = useAuth();
+
+  const [currentView, setCurrentView] = useState<'workspace' | 'login'>(() => {
+    return currentUser ? 'workspace' : 'login';
+  });
+  const [activeLoginPortal, setActiveLoginPortal] = useState<PortalType>('hub');
 
   const [isNewOrderOpen, setIsNewOrderOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -29,28 +36,45 @@ const MainContent: React.FC = () => {
     setIsProfileModalOpen(true);
   };
 
+  const handleOpenAuth = (portal: PortalType = 'hub') => {
+    setActiveLoginPortal(portal);
+    setCurrentView('login');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Top Bar with Three-Zone Contract */}
       <Navbar
+        currentView={currentView}
         onOpenNewOrder={() => setIsNewOrderOpen(true)}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenAuth={handleOpenAuth}
         onOpenProfile={() => handleOpenProfile('profile')}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
+        onSelectWorkspace={() => setCurrentView('workspace')}
       />
 
-      {/* Primary Workspace Content */}
+      {/* Primary Workspace Content or Dedicated Login Pages */}
       <main className="flex-1">
-        {activeRole === 'restaurant' && <DispatchDashboard />}
-        {activeRole === 'customer' && (
-          <CustomerTracker
+        {currentView === 'login' ? (
+          <LoginPortalHub
+            initialPortal={activeLoginPortal}
+            onClose={() => setCurrentView('workspace')}
             onOpenNewOrder={() => setIsNewOrderOpen(true)}
-            onOpenProfile={() => handleOpenProfile('profile')}
-            onOpenHistory={() => handleOpenProfile('history')}
           />
+        ) : (
+          <>
+            {activeRole === 'restaurant' && <DispatchDashboard />}
+            {activeRole === 'customer' && (
+              <CustomerTracker
+                onOpenNewOrder={() => setIsNewOrderOpen(true)}
+                onOpenProfile={() => handleOpenProfile('profile')}
+                onOpenHistory={() => handleOpenProfile('history')}
+              />
+            )}
+            {activeRole === 'driver' && <DriverDashboard />}
+            {activeRole === 'dispatcher_map' && <CityFleetOverview />}
+          </>
         )}
-        {activeRole === 'driver' && <DriverDashboard />}
-        {activeRole === 'dispatcher_map' && <CityFleetOverview />}
       </main>
 
       {/* New Order Modal */}
@@ -79,16 +103,16 @@ const MainContent: React.FC = () => {
         />
       )}
 
-      {/* Clean Domain Footer with crisp light styling */}
-      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 mt-auto">
+      {/* Clean Domain Footer with high-contrast dark support */}
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">Velocita Logistics Engine</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">Velocita Logistics Engine</span>
             <span>·</span>
             <span>Real-Time Distance & Timing Dispatch Architecture</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500">
             <span>Dynamic Haversine Routing</span>
             <span>·</span>
             <span>Corridor Batching v2</span>
@@ -103,10 +127,12 @@ const MainContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <DeliveryProvider>
-        <MainContent />
-      </DeliveryProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <DeliveryProvider>
+          <MainContent />
+        </DeliveryProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

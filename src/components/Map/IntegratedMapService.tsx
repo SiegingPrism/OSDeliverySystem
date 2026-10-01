@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Zap,
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import { Order, VehicleType } from '../../types/delivery';
 
 interface IntegratedMapServiceProps {
@@ -26,6 +27,7 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
   heightClass = 'h-[500px]',
   autoCenterDriver = true,
 }) => {
+  const { isDark } = useTheme();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const driverMarkerRef = useRef<L.Marker | null>(null);
@@ -57,11 +59,12 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
         attributionControl: false,
       });
 
-      // High-detail vector-rendered basemap
-      const tileUrl =
-        tileLayerType === 'voyager'
-          ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-          : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+      // High-detail vector-rendered basemap: Dark Matter in dark mode, Positron/Voyager in light mode
+      const tileUrl = isDark
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : tileLayerType === 'voyager'
+        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
       L.tileLayer(tileUrl, {
         maxZoom: 19,
@@ -84,7 +87,7 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
     } catch (err) {
       console.error('Leaflet initialization error:', err);
     }
-  }, [order.id, tileLayerType]);
+  }, [order.id, tileLayerType, isDark]);
 
   // Update Markers, Route and Delivery Radius
   useEffect(() => {
@@ -303,17 +306,17 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
   };
 
   return (
-    <div className={`relative w-full ${heightClass} overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm select-none`}>
+    <div className={`relative w-full ${heightClass} overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-sm select-none`}>
       {/* Map Viewport Container */}
       <div ref={mapContainerRef} className="w-full h-full z-10" />
 
       {/* Floating HUD Top Left: Live Status Overlay */}
       <div className="absolute top-3.5 left-3.5 z-20 flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-2 rounded-xl bg-white/95 px-3 py-1.5 border border-slate-200 backdrop-blur-md text-xs font-medium text-slate-700 shadow-md">
+        <div className="flex items-center gap-2 rounded-xl bg-white/95 dark:bg-slate-900/95 px-3 py-1.5 border border-slate-200 dark:border-slate-800 backdrop-blur-md text-xs font-medium text-slate-700 dark:text-slate-200 shadow-md">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-900 font-mono">{order.id}</span>
-          <span className="text-slate-300">·</span>
-          <span className="text-indigo-700 capitalize font-mono font-bold">
+          <span className="font-semibold text-slate-900 dark:text-white font-mono">{order.id}</span>
+          <span className="text-slate-300 dark:text-slate-700">·</span>
+          <span className="text-indigo-700 dark:text-indigo-400 capitalize font-mono font-bold">
             {order.status.replace(/_/g, ' ')}
           </span>
         </div>
@@ -333,9 +336,9 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
         <button
           onClick={() => setTileLayerType(tileLayerType === 'positron' ? 'voyager' : 'positron')}
           title="Switch Map Cartography"
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/95 border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 backdrop-blur-md shadow-md transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white backdrop-blur-md shadow-md transition-colors"
         >
-          <Layers className="h-3.5 w-3.5 text-indigo-600" />
+          <Layers className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
           <span>{tileLayerType === 'positron' ? 'Detailed' : 'Light'}</span>
         </button>
 
@@ -345,7 +348,7 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-md shadow-md transition-all ${
             followDriver
               ? 'bg-indigo-600 text-white border-indigo-500 font-bold'
-              : 'bg-white/95 border-slate-200 text-slate-700 hover:text-slate-900'
+              : 'bg-white/95 dark:bg-slate-900/95 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <LocateFixed className="h-3.5 w-3.5" />
@@ -355,7 +358,7 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
         <button
           onClick={handleRecenterRoute}
           title="Fit Whole Route"
-          className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/95 border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 backdrop-blur-md shadow-md transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white backdrop-blur-md shadow-md transition-colors"
         >
           <Maximize2 className="h-3.5 w-3.5" />
           <span>Full Route</span>
@@ -363,30 +366,30 @@ export const IntegratedMapService: React.FC<IntegratedMapServiceProps> = ({
       </div>
 
       {/* Bottom Live Telemetry Overlay */}
-      <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white/95 px-4 py-2.5 border border-slate-200 backdrop-blur-md text-xs text-slate-700 shadow-md">
+      <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white/95 dark:bg-slate-900/95 px-4 py-2.5 border border-slate-200 dark:border-slate-800 backdrop-blur-md text-xs text-slate-700 dark:text-slate-200 shadow-md">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-rose-600 font-bold">●</span>
-            <span className="text-slate-900 font-semibold">{order.restaurantName}</span>
+            <span className="text-rose-600 dark:text-rose-400 font-bold">●</span>
+            <span className="text-slate-900 dark:text-white font-semibold">{order.restaurantName}</span>
           </div>
-          <span className="text-slate-300">→</span>
+          <span className="text-slate-300 dark:text-slate-700">→</span>
           <div className="flex items-center gap-1.5">
-            <span className="text-blue-600 font-bold">●</span>
-            <span className="text-slate-700 truncate max-w-[200px]">
+            <span className="text-blue-600 dark:text-blue-400 font-bold">●</span>
+            <span className="text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
               {order.deliveryAddress}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-[11px] text-slate-600">
+        <div className="flex items-center gap-3 font-mono text-[11px] text-slate-600 dark:text-slate-400">
           <span>{dt.roadDistanceKm} km road</span>
-          <span className="text-slate-300">/</span>
+          <span className="text-slate-300 dark:text-slate-700">/</span>
           {order.courierName ? (
-            <span className="text-indigo-700 font-bold">
+            <span className="text-indigo-700 dark:text-indigo-400 font-bold">
               {order.courierName} ({order.courierVehicle})
             </span>
           ) : (
-            <span className="text-slate-400">Pending Driver</span>
+            <span className="text-slate-400 dark:text-slate-600">Pending Driver</span>
           )}
         </div>
       </div>

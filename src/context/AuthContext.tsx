@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AuthUser, CustomerProfile, DriverProfile, RestaurantStaffProfile } from '../types/auth';
+import { AuthUser, CustomerProfile, DispatcherProfile, DriverProfile, RestaurantStaffProfile } from '../types/auth';
 
 const STORAGE_KEY_AUTH = 'velocita_auth_user';
 const STORAGE_KEY_CUSTOMERS = 'velocita_customers_db';
 const STORAGE_KEY_STAFF = 'velocita_staff_db';
 const STORAGE_KEY_DRIVERS = 'velocita_drivers_db';
+const STORAGE_KEY_DISPATCHERS = 'velocita_dispatchers_db';
 
 export const INITIAL_CUSTOMERS: CustomerProfile[] = [
   {
@@ -165,11 +166,42 @@ export const INITIAL_DRIVERS: DriverProfile[] = [
   },
 ];
 
+export const INITIAL_DISPATCHERS: DispatcherProfile[] = [
+  {
+    id: 'disp-1',
+    role: 'dispatcher',
+    name: 'Sarah Chen',
+    email: 'sarah.dispatch@velocita.app',
+    callsign: 'METRO-ALPHA-1',
+    clearanceLevel: 'Operations Lead',
+    createdAt: Date.now() - 180 * 24 * 3600 * 1000,
+  },
+  {
+    id: 'disp-2',
+    role: 'dispatcher',
+    name: 'Marcus Brody',
+    email: 'marcus.dispatch@velocita.app',
+    callsign: 'CORRIDOR-WEST',
+    clearanceLevel: 'Corridor Dispatcher',
+    createdAt: Date.now() - 90 * 24 * 3600 * 1000,
+  },
+  {
+    id: 'disp-3',
+    role: 'dispatcher',
+    name: 'Aiden Brooks',
+    email: 'aiden.dispatch@velocita.app',
+    callsign: 'TRAFFIC-CENTRAL',
+    clearanceLevel: 'Traffic Coordinator',
+    createdAt: Date.now() - 45 * 24 * 3600 * 1000,
+  },
+];
+
 interface AuthContextType {
   currentUser: AuthUser | null;
   customers: CustomerProfile[];
   staffMembers: RestaurantStaffProfile[];
   drivers: DriverProfile[];
+  dispatchers: DispatcherProfile[];
   loginAsCustomer: (email: string, password?: string) => boolean;
   signUpCustomer: (data: {
     name: string;
@@ -182,10 +214,11 @@ interface AuthContextType {
   }) => CustomerProfile;
   loginAsStaff: (email: string, restaurantId?: string) => boolean;
   loginAsDriver: (driverId: string) => boolean;
+  loginAsDispatcher: (callsignOrEmail: string, clearancePin?: string) => boolean;
   toggleDriverOnline: (driverId: string) => void;
   updateCustomerProfile: (data: Partial<CustomerProfile>) => void;
   logout: () => void;
-  switchDemoAccount: (role: 'customer' | 'restaurant_staff' | 'driver', id: string) => void;
+  switchDemoAccount: (role: 'customer' | 'restaurant_staff' | 'driver' | 'dispatcher', id: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -215,6 +248,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return saved ? JSON.parse(saved) : INITIAL_DRIVERS;
     } catch {
       return INITIAL_DRIVERS;
+    }
+  });
+
+  const [dispatchers] = useState<DispatcherProfile[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_DISPATCHERS);
+      return saved ? JSON.parse(saved) : INITIAL_DISPATCHERS;
+    } catch {
+      return INITIAL_DISPATCHERS;
     }
   });
 
@@ -334,6 +376,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  const loginAsDispatcher = (callsignOrEmail: string, clearancePin?: string): boolean => {
+    const clean = callsignOrEmail.trim().toLowerCase();
+    const found =
+      dispatchers.find(
+        (d) =>
+          d.email.toLowerCase() === clean ||
+          d.callsign.toLowerCase() === clean ||
+          d.name.toLowerCase().includes(clean)
+      ) || dispatchers[0];
+    setCurrentUser(found);
+    return true;
+  };
+
   const toggleDriverOnline = (driverId: string) => {
     setDrivers((prev) =>
       prev.map((d) => {
@@ -370,7 +425,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchDemoAccount = (
-    role: 'customer' | 'restaurant_staff' | 'driver',
+    role: 'customer' | 'restaurant_staff' | 'driver' | 'dispatcher',
     id: string
   ) => {
     if (role === 'customer') {
@@ -379,6 +434,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else if (role === 'restaurant_staff') {
       const staff = staffMembers.find((s) => s.id === id) || staffMembers[0];
       setCurrentUser(staff);
+    } else if (role === 'dispatcher') {
+      const disp = dispatchers.find((d) => d.id === id) || dispatchers[0];
+      setCurrentUser(disp);
     } else {
       const driver = drivers.find((d) => d.id === id) || drivers[0];
       setCurrentUser(driver);
@@ -392,10 +450,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         customers,
         staffMembers,
         drivers,
+        dispatchers,
         loginAsCustomer,
         signUpCustomer,
         loginAsStaff,
         loginAsDriver,
+        loginAsDispatcher,
         toggleDriverOnline,
         updateCustomerProfile,
         logout,

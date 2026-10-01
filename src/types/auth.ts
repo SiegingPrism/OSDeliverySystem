@@ -1,6 +1,6 @@
 import { VehicleType } from './delivery';
 
-export type UserRole = 'customer' | 'restaurant_staff' | 'driver';
+export type UserRole = 'customer' | 'restaurant_staff' | 'driver' | 'dispatcher';
 
 export interface CustomerProfile {
   id: string;
@@ -42,7 +42,17 @@ export interface DriverProfile {
   createdAt: number;
 }
 
-export type AuthUser = CustomerProfile | RestaurantStaffProfile | DriverProfile;
+export interface DispatcherProfile {
+  id: string;
+  role: 'dispatcher';
+  email: string;
+  name: string;
+  callsign: string;
+  clearanceLevel: 'Operations Lead' | 'Corridor Dispatcher' | 'Traffic Coordinator';
+  createdAt: number;
+}
+
+export type AuthUser = CustomerProfile | RestaurantStaffProfile | DriverProfile | DispatcherProfile;
 
 export interface RejectionReason {
   reason: string;

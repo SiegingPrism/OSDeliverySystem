@@ -87,12 +87,12 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
   };
 
   const chatContent = (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-900 transition-colors">
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-3.5 px-4 border-b border-slate-200 bg-slate-50/80">
+      <div className="flex items-center justify-between p-3.5 px-4 sm:px-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700 font-bold text-sm border border-indigo-200 shadow-xs">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-sm border border-indigo-200 dark:border-indigo-800 shadow-xs">
               {activeCourier
                 ? activeCourier.name
                     .split(' ')
@@ -100,18 +100,18 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
                     .join('')
                 : 'DR'}
             </div>
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
           </div>
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h4 className="text-xs font-bold text-slate-900">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                 {activeCourier ? activeCourier.name : 'Assigned Driver'}
               </h4>
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
-              <span className="text-emerald-700 font-medium">Online</span>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <span className="text-emerald-700 dark:text-emerald-400 font-medium">Online</span>
               <span>·</span>
               <span className="capitalize">{activeCourier?.vehicleType || 'Courier'}</span>
               <span>·</span>
@@ -124,10 +124,10 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
           <button
             type="button"
             onClick={() => setShowCallModal(true)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-xs"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs"
             title="Call Masked Line"
           >
-            <Phone className="h-3.5 w-3.5 text-indigo-600" />
+            <Phone className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
             <span className="hidden sm:inline">Call</span>
           </button>
 
@@ -135,7 +135,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="p-1 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -144,23 +144,27 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
       </div>
 
       {/* Message Thread Body */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[220px] max-h-[340px] bg-slate-50/50">
+      <div
+        className={`flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 ${
+          variant === 'modal' ? 'min-h-[220px] max-h-[360px]' : 'min-h-[130px] max-h-[200px]'
+        } bg-slate-50/50 dark:bg-slate-950/40`}
+      >
         {/* Order Context Banner */}
-        <div className="p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-100 text-center">
-          <p className="text-[11px] text-indigo-900 font-medium">
+        <div className="p-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 text-center">
+          <p className="text-[11px] text-indigo-900 dark:text-indigo-200 font-medium">
             💬 You are communicating directly with your driver for{' '}
-            <span className="font-bold font-mono text-indigo-700">{order.id}</span>
+            <span className="font-bold font-mono text-indigo-700 dark:text-indigo-400">{order.id}</span>
           </p>
-          <p className="text-[10px] text-indigo-600 mt-0.5">
+          <p className="text-[10px] text-indigo-600 dark:text-indigo-300 mt-0.5">
             Share gate access codes, apartment numbers, or doorstep instructions.
           </p>
         </div>
 
         {chatMessages.length === 0 ? (
-          <div className="text-center py-6">
-            <MessageSquare className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-slate-700">No messages yet</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+          <div className="text-center py-5">
+            <MessageSquare className="h-7 w-7 text-slate-300 dark:text-slate-600 mx-auto mb-1.5" />
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No messages yet</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
               Send a quick delivery note below to give your courier specific instructions.
             </p>
           </div>
@@ -183,7 +187,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
                   className={`rounded-2xl px-3.5 py-2 text-xs leading-relaxed max-w-[85%] shadow-xs break-words ${
                     isCustomer
                       ? 'bg-indigo-600 text-white rounded-br-xs font-sans'
-                      : 'bg-white text-slate-900 border border-slate-200 rounded-bl-xs font-sans'
+                      : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-bl-xs font-sans'
                   }`}
                 >
                   {msg.message}
@@ -196,7 +200,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
         {/* Typing indicator bubble */}
         {isTyping && (
           <div className="flex items-center gap-2 text-xs text-slate-500 pl-2">
-            <div className="flex space-x-1 items-center bg-white border border-slate-200 p-2 px-3 rounded-2xl shadow-xs">
+            <div className="flex space-x-1 items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 px-3 rounded-2xl shadow-xs">
               <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
               <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
               <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" />
@@ -209,8 +213,8 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
       </div>
 
       {/* Quick Instruction Presets (1-tap click) */}
-      <div className="p-2.5 px-4 border-t border-slate-100 bg-white">
-        <span className="text-[10px] font-mono uppercase text-slate-400 block mb-1.5">
+      <div className="p-2.5 px-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <span className="text-[10px] font-mono uppercase text-slate-400 dark:text-slate-500 block mb-1.5">
           Quick Delivery Instructions (Tap to Send)
         </span>
         <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
@@ -219,7 +223,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
               key={idx}
               type="button"
               onClick={() => handleSend(preset.text)}
-              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 border border-slate-200 text-[11px] text-slate-700 transition-colors whitespace-nowrap active:scale-[0.98]"
+              className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 hover:text-indigo-700 dark:hover:text-indigo-300 hover:border-indigo-200 dark:hover:border-indigo-800 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 transition-colors whitespace-nowrap active:scale-[0.98]"
             >
               {preset.label}
             </button>
@@ -228,7 +232,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
       </div>
 
       {/* Input Form */}
-      <div className="p-3 px-4 border-t border-slate-200 bg-slate-50/70">
+      <div className="p-3 px-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60">
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -236,7 +240,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type delivery note (gate code, doorstep, etc)..."
-            className="flex-1 rounded-xl bg-white border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
+            className="flex-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-xs"
           />
           <button
             type="button"
@@ -304,7 +308,7 @@ export const OrderDeliveryChat: React.FC<OrderDeliveryChatProps> = ({
 
   // Card variant (default)
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-colors">
       {chatContent}
     </div>
   );

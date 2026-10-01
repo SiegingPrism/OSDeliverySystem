@@ -17,6 +17,7 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import { useDelivery } from '../../context/DeliveryContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Courier, Order, Restaurant, VehicleType } from '../../types/delivery';
 
 interface LiveDeliveryMapProps {
@@ -27,6 +28,7 @@ interface LiveDeliveryMapProps {
   pickedLocation?: { lat: number; lng: number } | null;
   heightClass?: string;
   initialHeatmap?: boolean;
+  className?: string;
 }
 
 // Bounding box for the metropolitan service region (San Francisco East Bayfront)
@@ -48,6 +50,7 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
   pickedLocation,
   heightClass = 'h-[560px]',
   initialHeatmap = true,
+  className = '',
 }) => {
   const {
     orders,
@@ -238,7 +241,11 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
   };
 
   return (
-    <div className={`relative w-full ${heightClass} overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 select-none shadow-sm`}>
+    <div
+      className={`relative w-full ${heightClass} overflow-hidden ${
+        className ? className : 'rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm'
+      } bg-slate-50 dark:bg-slate-950 select-none transition-colors duration-200`}
+    >
       {/* Top Map Floating HUD */}
       <div className="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2 rounded-xl bg-white/95 px-3 py-1.5 border border-slate-200 backdrop-blur-md text-xs font-medium text-slate-700 shadow-md">
