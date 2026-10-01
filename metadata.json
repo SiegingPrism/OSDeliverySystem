@@ -1,0 +1,6 @@
+{
+  "name": "Velocita - Real-Time Delivery & Dispatch System",
+  "description": "Intelligent real-time food delivery dispatch and live tracking platform for restaurants and customers, optimizing orders by distance and time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
